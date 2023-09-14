@@ -2,7 +2,7 @@ CREATE SEQUENCE IF NOT EXISTS patients_seq START WITH 1 INCREMENT BY 50;
 
 CREATE TABLE patients
 (
-    id            BIGINT       NOT NULL,
+    id            BIGINT       NOT NULL DEFAULT nextval('patients_seq'),
     uuid          UUID         NOT NULL,
     full_name     VARCHAR(255) NOT NULL,
     date_of_birth date         NOT NULL,
@@ -16,3 +16,5 @@ ALTER TABLE patients
     ADD CONSTRAINT uc_patients_uuid UNIQUE (uuid);
 
 CREATE INDEX idx_patients_uuid ON patients (uuid);
+
+ALTER SEQUENCE patients_seq OWNED BY patients.id;

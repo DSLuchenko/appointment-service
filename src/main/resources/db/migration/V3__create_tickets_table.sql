@@ -2,7 +2,7 @@ CREATE SEQUENCE IF NOT EXISTS tickets_seq START WITH 1 INCREMENT BY 50;
 
 CREATE TABLE tickets
 (
-    id               BIGINT NOT NULL,
+    id               BIGINT NOT NULL DEFAULT nextval('tickets_seq'),
     appointment_date date   NOT NULL,
     appointment_time time WITHOUT TIME ZONE NOT NULL,
     doctor_id        BIGINT NOT NULL,
@@ -22,3 +22,5 @@ ALTER TABLE tickets
     ADD CONSTRAINT FK_TICKETS_ON_PATIENT FOREIGN KEY (patient_id) REFERENCES patients (id);
 
 CREATE INDEX idx_tickets_patient_id ON tickets (patient_id);
+
+ALTER SEQUENCE tickets_seq OWNED BY tickets.id;
