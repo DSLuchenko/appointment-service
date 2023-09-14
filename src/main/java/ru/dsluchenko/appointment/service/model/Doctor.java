@@ -5,9 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @NoArgsConstructor
 @Getter
 @Setter
@@ -25,7 +22,4 @@ import java.util.List;
 )
 
 public class Doctor extends AbstractEntityWithPersonalInfo {
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JoinColumn(name = "doctor_id")
-    private List<Ticket> tickets = new ArrayList<>();
 }

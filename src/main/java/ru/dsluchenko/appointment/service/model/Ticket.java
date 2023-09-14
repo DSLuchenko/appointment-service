@@ -35,7 +35,20 @@ public class Ticket extends AbstractBaseEntity {
     @Column(name = "appointment_time",
             nullable = false)
     private LocalTime appointmentTime;
-    @ManyToOne
+
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.MERGE)
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
+
+    public Ticket(LocalDate appointmentDate, LocalTime appointmentTime, Doctor doctor) {
+        this.appointmentDate = appointmentDate;
+        this.appointmentTime = appointmentTime;
+        this.doctor = doctor;
+    }
 }
