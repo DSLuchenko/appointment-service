@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.dsluchenko.appointment.service.mapper.TicketMapper;
 import ru.dsluchenko.appointment.service.rest.dto.repsonse.AvailableTicketResponse;
 import ru.dsluchenko.appointment.service.rest.dto.repsonse.TakenTicketResponse;
-import ru.dsluchenko.appointment.service.rest.dto.request.TakeTicketRequest;
+import ru.dsluchenko.appointment.service.rest.dto.request.TakeTicketByPatientRequest;
 import ru.dsluchenko.appointment.service.rest.service.AppointmentService;
 
 import java.time.LocalDate;
@@ -46,8 +46,8 @@ public class TicketController {
     @PatchMapping("/{ticketId}")
     public ResponseEntity<TakenTicketResponse> takeAvailableTicketByPatient(
             @PathVariable("ticketId") Long ticketId,
-            @RequestBody TakeTicketRequest takeTicketRequest) {
+            @RequestBody TakeTicketByPatientRequest takeTicketByPatientRequest) {
         return ResponseEntity.ok(ticketMapper.toTakenTicketResponse(
-                appointmentService.takeAvailableTicketToDoctorByPatient(ticketId, takeTicketRequest.patientUuid())));
+                appointmentService.takeAvailableTicketToDoctorByPatient(ticketId, takeTicketByPatientRequest.patientUuid())));
     }
 }
