@@ -2,6 +2,7 @@ package ru.dsluchenko.appointment.service.rest.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.dsluchenko.appointment.service.exception.ResourceNotFoundException;
 import ru.dsluchenko.appointment.service.model.Doctor;
 import ru.dsluchenko.appointment.service.model.Patient;
 import ru.dsluchenko.appointment.service.model.Ticket;
@@ -21,7 +22,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final TicketRepository ticketRepository;
     private final DoctorRepository doctorRepository;
 
-
     @Autowired
     public AppointmentServiceImpl(PatientRepository patientRepository,
                                   TicketRepository ticketRepository,
@@ -33,7 +33,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<Ticket> getAvailableTicketsToDoctorByAppointmentDate(UUID doctorUuid, LocalDate appointmentDate) {
-        Doctor doctor = doctorRepository.findByUuid(doctorUuid).orElseThrow();
+        Doctor doctor = doctorRepository
+                .findByUuid(doctorUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+
         List<Ticket> availableTickets =
                 ticketRepository.findAllByAppointmentDateAndDoctorAndPatientIsNullOrderByAppointmentTime(
                         appointmentDate,
@@ -44,9 +47,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public Ticket takeAvailableTicketToDoctorByPatient(Long ticketId, UUID patientUuid) {
-        Patient patient = patientRepository.findByUuid(patientUuid).orElseThrow();
+        Ticket ticket = ticketRepository
+                .findById(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
 
-        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+        Patient patient = patientRepository
+                .findByUuid(patientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
         ticket.setPatient(patient);
         ticket = ticketRepository.save(ticket);
 
@@ -55,8 +63,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<Ticket> getAllTakenTicketsByPatient(UUID patientUuid) {
+        Patient patient = patientRepository
+                .findByUuid(patientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        Patient patient = patientRepository.findByUuid(patientUuid).orElseThrow();
         List<Ticket> patientTickets = ticketRepository
                 .findAllByPatientOrderByAppointmentDateAscAppointmentTimeAsc(patient);
 
