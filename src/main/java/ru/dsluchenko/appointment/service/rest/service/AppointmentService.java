@@ -1,7 +1,6 @@
 package ru.dsluchenko.appointment.service.rest.service;
 
-import ru.dsluchenko.appointment.service.rest.dto.repsonse.AvailableTicketResponse;
-import ru.dsluchenko.appointment.service.rest.dto.repsonse.TakenTicketReponse;
+import ru.dsluchenko.appointment.service.model.Ticket;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,9 +8,9 @@ import java.util.UUID;
 
 public interface AppointmentService {
 
-    List<AvailableTicketResponse> getAvailableTicketsToDoctorByAppointmentDate(UUID doctorUuid, LocalDate appointmentDate);
+    List<Ticket> getAvailableTicketsToDoctorByAppointmentDate(UUID doctorUuid, LocalDate appointmentDate);
 
-    TakenTicketReponse takeAvailableTicketByPatient(Long ticketId, UUID patientUuid);
+    Ticket takeAvailableTicketToDoctorByPatient(Long ticketId, UUID patientUuid);
 
-    List<TakenTicketReponse> getAllPatientTickets(UUID patientUuid);
+    List<Ticket> getAllTakenTicketsByPatient(UUID patientUuid);
 }
