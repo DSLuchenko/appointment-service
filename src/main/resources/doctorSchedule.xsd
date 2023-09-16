@@ -1,0 +1,46 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://dsluchenko.ru/appointment/service/soap/domain"
+           targetNamespace="http://dsluchenko.ru/appointment/service/soap/domain"
+           elementFormDefault="qualified">
+
+    <xs:element name="generateGeneralScheduleRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="generalRule" type="tns:ruleForGeneralSchedule" maxOccurs="7"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="generateIndividualScheduleRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="individualRule" type="tns:ruleForIndividualSchedule" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="generateScheduleResultResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="status" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="ruleForGeneralSchedule">
+        <xs:sequence>
+            <xs:element name="appointmentDate" type="xs:date"/>
+            <xs:element name="scheduleStartTime" type="xs:time"/>
+            <xs:element name="durationOfTicket" type="xs:time"/>
+            <xs:element name="countTickets" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ruleForIndividualSchedule">
+        <xs:sequence>
+            <xs:element name="generalRules" type="tns:ruleForGeneralSchedule" maxOccurs="7"/>
+            <xs:element name="doctorUuid" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
