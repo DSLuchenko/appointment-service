@@ -2,6 +2,7 @@ package ru.dsluchenko.appointment.service.soap.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.dsluchenko.appointment.service.model.Doctor;
 import ru.dsluchenko.appointment.service.model.Ticket;
 import ru.dsluchenko.appointment.service.repository.DoctorRepository;
@@ -27,6 +28,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
         this.ticketRepository = ticketRepository;
     }
 
+    @Transactional
     @Override
     public void createGeneralScheduleForAllDoctors(List<GeneralRule> generalRules) {
         List<Doctor> doctors = doctorRepository.findAll();
@@ -45,7 +47,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
         ticketRepository.saveAll(tickets);
     }
 
-
+    @Transactional
     @Override
     public void createIndividualScheduleForDoctors(List<IndividualRule> individualRules) {
         List<UUID> uuids = individualRules

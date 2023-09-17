@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.dsluchenko.appointment.service.exception.ResourceNotFoundException;
 import ru.dsluchenko.appointment.service.model.Doctor;
 import ru.dsluchenko.appointment.service.model.Patient;
@@ -48,6 +49,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return availableTickets;
     }
 
+    @Transactional
     @Override
     public Ticket takeAvailableTicketToDoctorByPatient(Long ticketId, UUID patientUuid) {
         Ticket ticket = ticketRepository
