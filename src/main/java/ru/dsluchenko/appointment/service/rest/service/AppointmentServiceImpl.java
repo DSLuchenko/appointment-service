@@ -1,6 +1,8 @@
 package ru.dsluchenko.appointment.service.rest.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.dsluchenko.appointment.service.exception.ResourceNotFoundException;
 import ru.dsluchenko.appointment.service.model.Doctor;
@@ -32,15 +34,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<Ticket> getAvailableTicketsToDoctorByAppointmentDate(UUID doctorUuid, LocalDate appointmentDate) {
+    public List<Ticket> getTicketsByDoctorWithFilter(UUID doctorUuid, LocalDate startDate, LocalDate endDate, boolean onlyAvailable) {
         Doctor doctor = doctorRepository
                 .findByUuid(doctorUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
 
         List<Ticket> availableTickets =
-                ticketRepository.findAllByAppointmentDateAndDoctorAndPatientIsNullOrderByAppointmentTime(
-                        appointmentDate,
-                        doctor);
+                onlyAvailable
+                        ? ticketRepository.findAllByDoctorAndAppointmentDateBetweenAndPatientIsNull(doctor, startDate, endDate)
+                        : ticketRepository.findAllByDoctorAndAppointmentDateBetween(doctor, startDate, endDate);
+
 
         return availableTickets;
     }
@@ -62,14 +65,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<Ticket> getAllTakenTicketsByPatient(UUID patientUuid) {
+    public PageImpl<Ticket> getTicketsByPatientWithPagination(UUID patientUuid, int page, int size) {
         Patient patient = patientRepository
                 .findByUuid(patientUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        List<Ticket> patientTickets = ticketRepository
-                .findAllByPatientOrderByAppointmentDateAscAppointmentTimeAsc(patient);
-
-        return patientTickets;
+        return ticketRepository.findAllByPatient(patient, PageRequest.of(page, size));
     }
 }

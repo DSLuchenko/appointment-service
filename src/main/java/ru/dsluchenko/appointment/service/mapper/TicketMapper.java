@@ -2,9 +2,12 @@ package ru.dsluchenko.appointment.service.mapper;
 
 import org.mapstruct.Mapper;
 
+import org.mapstruct.Mapping;
+import org.springframework.data.domain.PageImpl;
 import ru.dsluchenko.appointment.service.model.Ticket;
-import ru.dsluchenko.appointment.service.rest.dto.repsonse.AvailableTicketResponse;
-import ru.dsluchenko.appointment.service.rest.dto.repsonse.TakenTicketResponse;
+import ru.dsluchenko.appointment.service.rest.dto.repsonse.TicketByDoctorResponse;
+import ru.dsluchenko.appointment.service.rest.dto.repsonse.GetTicketsByPatientResponse;
+import ru.dsluchenko.appointment.service.rest.dto.repsonse.TicketByPatientResponse;
 
 import java.util.Collection;
 
@@ -13,11 +16,16 @@ import java.util.Collection;
         PatientMapper.class})
 public interface TicketMapper {
 
-    AvailableTicketResponse toAvailableTicketResponse(Ticket ticket);
+    TicketByDoctorResponse toTicketsByDoctorResponse(Ticket ticket);
 
-    Collection<AvailableTicketResponse> toAvailableTicketsResponse(Collection<Ticket> tickets);
+    Collection<TicketByDoctorResponse> toTicketsByDoctorResponse(Collection<Ticket> tickets);
 
-    TakenTicketResponse toTakenTicketResponse(Ticket ticket);
+    TicketByPatientResponse toTicketsByPatientResponse(Ticket ticket);
 
-    Collection<TakenTicketResponse> toTakenTicketsResponse(Collection<Ticket> tickets);
+    Collection<TicketByPatientResponse> toTicketsByPatientResponse(Collection<Ticket> tickets);
+
+    @Mapping(target = "tickets", source = "content")
+    @Mapping(target = "hasNext", expression = "java(pageOfTickets.hasNext())")
+    @Mapping(target = "isLast", expression = "java(pageOfTickets.isLast())")
+    GetTicketsByPatientResponse toGetTicketsByPatientResponse(PageImpl<Ticket> pageOfTickets);
 }
