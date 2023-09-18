@@ -38,7 +38,7 @@
 
     <xs:complexType name="ruleForIndividualSchedule">
         <xs:sequence>
-            <xs:element name="generalRules" type="tns:ruleForGeneralSchedule" maxOccurs="7"/>
+            <xs:element name="generalRule" type="tns:ruleForGeneralSchedule" maxOccurs="7"/>
             <xs:element name="doctorUuid" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>

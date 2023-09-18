@@ -85,7 +85,7 @@ public class DoctorScheduleEndpoint {
         individualRule
                 .getRules()
                 .addAll(ruleForIndividualSchedule
-                        .getGeneralRules()
+                        .getGeneralRule()
                         .stream()
                         .map(this::mapToGeneralRule)
                         .toList());

@@ -29,7 +29,9 @@ public class TicketController {
         this.ticketMapper = ticketMapper;
     }
 
-    @GetMapping("/byDoctor/{doctorUuid}")
+    @GetMapping(
+            value = "/byDoctor/{doctorUuid}",
+            produces = "application/json")
     public ResponseEntity<Collection<TicketByDoctorResponse>> getTicketsToDoctorWithFilter(
             @PathVariable UUID doctorUuid,
             @RequestParam(required = false, defaultValue = "#{T(java.time.LocalDate).now()}") LocalDate startDate,
@@ -44,7 +46,9 @@ public class TicketController {
                         onlyAvailable)));
     }
 
-    @GetMapping("/byPatient/{patientUuid}")
+    @GetMapping(
+            value = "/byPatient/{patientUuid}",
+            produces = "application/json")
     public ResponseEntity<GetTicketsByPatientResponse> getPatientTicketsWithPagination(
             @PathVariable("patientUuid") UUID patientUuid,
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -54,7 +58,10 @@ public class TicketController {
                 appointmentService.getTicketsByPatientWithPagination(patientUuid, page, size)));
     }
 
-    @PatchMapping("/{ticketId}")
+    @PatchMapping(
+            value = "/{ticketId}",
+            consumes = "application/json",
+            produces = "application/json")
     public ResponseEntity<TicketByPatientResponse> takeAvailableTicketByPatient(
             @PathVariable("ticketId") Long ticketId,
             @RequestBody TakeTicketByPatientRequest takeTicketByPatientRequest) {
