@@ -7,6 +7,7 @@ import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import ru.dsluchenko.appointment.service.soap.domain.*;
 import ru.dsluchenko.appointment.service.soap.model.GeneralRule;
+import ru.dsluchenko.appointment.service.soap.model.GenerateScheduleResult;
 import ru.dsluchenko.appointment.service.soap.model.IndividualRule;
 import ru.dsluchenko.appointment.service.soap.service.DoctorScheduleService;
 
@@ -37,12 +38,8 @@ public class DoctorScheduleEndpoint {
                 .map(this::mapToGeneralRule)
                 .toList();
 
-        doctorScheduleService.createGeneralScheduleForAllDoctors(rules);
 
-        GenerateScheduleResultResponse response = new GenerateScheduleResultResponse();
-        response.setStatus("OK");
-
-        return response;
+        return mapToGenerateScheduleResultResponse(doctorScheduleService.createGeneralScheduleForAllDoctors(rules));
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI,
@@ -56,12 +53,7 @@ public class DoctorScheduleEndpoint {
                 .map(this::mapToIndividualRule)
                 .toList();
 
-        doctorScheduleService.createIndividualScheduleForDoctors(individualRules);
-
-        GenerateScheduleResultResponse response = new GenerateScheduleResultResponse();
-        response.setStatus("OK");
-
-        return response;
+        return mapToGenerateScheduleResultResponse(doctorScheduleService.createIndividualScheduleForDoctors(individualRules));
     }
 
     private GeneralRule mapToGeneralRule(RuleForGeneralSchedule ruleForGeneralSchedule) {
@@ -90,5 +82,13 @@ public class DoctorScheduleEndpoint {
                         .map(this::mapToGeneralRule)
                         .toList());
         return individualRule;
+    }
+
+    private GenerateScheduleResultResponse mapToGenerateScheduleResultResponse(GenerateScheduleResult generateScheduleResult) {
+        GenerateScheduleResultResponse response = new GenerateScheduleResultResponse();
+        response.setStatus(generateScheduleResult.getStatus());
+        response.setTicketsCount(generateScheduleResult.getTicketCount());
+        response.setNote(generateScheduleResult.getNote());
+        return response;
     }
 }
