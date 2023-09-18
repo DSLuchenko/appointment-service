@@ -3,11 +3,13 @@ package ru.dsluchenko.appointment.service.soap.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.dsluchenko.appointment.service.exception.ResourceNotFoundException;
 import ru.dsluchenko.appointment.service.model.Doctor;
 import ru.dsluchenko.appointment.service.model.Ticket;
 import ru.dsluchenko.appointment.service.repository.DoctorRepository;
 import ru.dsluchenko.appointment.service.repository.TicketRepository;
 import ru.dsluchenko.appointment.service.soap.model.GeneralRule;
+import ru.dsluchenko.appointment.service.soap.model.GenerateScheduleResult;
 import ru.dsluchenko.appointment.service.soap.model.IndividualRule;
 
 import java.time.LocalDate;
@@ -30,8 +32,13 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
 
     @Transactional
     @Override
-    public void createGeneralScheduleForAllDoctors(List<GeneralRule> generalRules) {
+    public GenerateScheduleResult createGeneralScheduleForAllDoctors(List<GeneralRule> generalRules) {
         List<Doctor> doctors = doctorRepository.findAll();
+
+        if (doctors.isEmpty()) {
+            throw new ResourceNotFoundException("Doctors not founded");
+        }
+
         List<Ticket> tickets = new ArrayList<>();
         generalRules.forEach(rule ->
                 doctors.forEach(doctor ->
@@ -44,12 +51,15 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
                                         doctor
                                 )
                         )));
+
         ticketRepository.saveAll(tickets);
+
+        return new GenerateScheduleResult("OK", tickets.size(), "");
     }
 
     @Transactional
     @Override
-    public void createIndividualScheduleForDoctors(List<IndividualRule> individualRules) {
+    public GenerateScheduleResult createIndividualScheduleForDoctors(List<IndividualRule> individualRules) {
         List<UUID> uuids = individualRules
                 .stream()
                 .map(IndividualRule::getDoctorUuid)
@@ -59,6 +69,10 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
                 doctorRepository.findAllByUuidIn(uuids)
                         .stream()
                         .collect(Collectors.toMap(Doctor::getUuid, doctor -> doctor));
+
+        if (doctors.isEmpty()) {
+            throw new ResourceNotFoundException("Doctors not founded");
+        }
 
         List<Ticket> tickets = new ArrayList<>();
 
@@ -73,7 +87,21 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
                                                 generalRule.getCountTickets(),
                                                 doctors.get(individualRule.getDoctorUuid()))))
         );
+
         ticketRepository.saveAll(tickets);
+
+        List<UUID> notFoundUuids = uuids.stream()
+                .filter(uuid -> !doctors.containsKey(uuid))
+                .toList();
+
+        String note = "";
+        if (!notFoundUuids.isEmpty()) {
+            note = "for this uuids: " +
+                    notFoundUuids +
+                    " not generated, but doctors not founded";
+        }
+
+        return new GenerateScheduleResult("OK", tickets.size(), note);
     }
 
     private List<Ticket> generateTicketsForDoctor(LocalDate appointmentDate,
@@ -83,14 +111,14 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
                                                   Doctor doctor) {
         LocalTime appointmentTime = scheduleStartTime;
         List<Ticket> tickets = new ArrayList<>();
-
-        for (int i = 0; i < countTickets; i++) {
-            tickets.add(new Ticket(appointmentDate, appointmentTime, doctor));
-            appointmentTime = appointmentTime
-                    .plusHours(durationOfTicket.getHour())
-                    .plusMinutes(durationOfTicket.getMinute());
+        if (doctor != null) {
+            for (int i = 0; i < countTickets; i++) {
+                tickets.add(new Ticket(appointmentDate, appointmentTime, doctor));
+                appointmentTime = appointmentTime
+                        .plusHours(durationOfTicket.getHour())
+                        .plusMinutes(durationOfTicket.getMinute());
+            }
         }
-
         return tickets;
     }
 }
